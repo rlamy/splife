@@ -15,3 +15,8 @@ def st_pattern(draw):
 @given(pattern=st_pattern())
 def test_list_roundtrips(pattern):
     assert Pattern.from_list(pattern.as_list()) == pattern
+
+@given(pattern=st_pattern())
+def test_txt_roundtrips(pattern):
+    assert Pattern.from_txt(pattern.as_txt()) == pattern
+
