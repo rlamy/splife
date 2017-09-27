@@ -1,7 +1,7 @@
 from hypothesis import given
 from hypothesis.strategies import (
     composite, sampled_from, integers, lists)
-from splife.pattern import Pattern
+from splife.pattern import Pattern, successor
 
 @composite
 def st_pattern(draw):
@@ -20,3 +20,8 @@ def test_list_roundtrips(pattern):
 def test_txt_roundtrips(pattern):
     assert Pattern.from_txt(pattern.as_txt()) == pattern
 
+def test_succ():
+    block = Pattern.from_list([[1, 1], [1, 1]])
+    s = successor(block)
+    assert s is not block
+    assert s == block
