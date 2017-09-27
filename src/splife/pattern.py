@@ -1,4 +1,4 @@
-#
+import attr
 
 def char2state(c):
     if c == '.':
@@ -8,9 +8,9 @@ def char2state(c):
     else:
         raise ValueError(f"Invalid character '{c}'")
 
+@attr.s
 class Pattern:
-    def __init__(self, data):
-        self.data = data
+    data = attr.ib()
 
     def __eq__(self, other):
         return all(x == y for x, y in zip(self.data, other.data))
@@ -19,10 +19,13 @@ class Pattern:
     def height(self):
         return len(self.data)
 
-
     @property
     def width(self):
         return len(self.data[0])
+
+    @classmethod
+    def empty(cls, height, width):
+        return Pattern([[0] * width for _ in range(height)])
 
     @classmethod
     def from_list(cls, data):
@@ -48,10 +51,22 @@ class Pattern:
     def as_txt(self):
         return '\n'.join(''.join('.O'[s] for s in l) for l in self.data)
 
+    def canonicalize(self):
+        if any(row[0] == 1 for row in self.data):
+            for row in self.data:
+                row.insert(0, 0)
+        if any(row[-1] == 1 for row in self.data):
+            for row in self.data:
+                row.append(0)
+        if any(s == 1 for s in self.data[0]):
+            self.data.insert(0, [0] * self.width)
+        if any(s == 1 for s in self.data[-1]):
+            self.data.append([0] * self.width)
+
 def successor(patt):
     h = patt.height
     l = patt.width
-    new_p = Pattern([[0] * l for _ in range(h)])
+    new_p = Pattern.empty(h, l)
     for i in range(h):
         rows = patt.data[max(i - 1, 0):i + 2]
         for j in range(l):
