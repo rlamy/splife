@@ -6,10 +6,13 @@ def char2state(c):
     elif c == 'O':
         return 1
     else:
-        raise ValueError(f"Invalid character '{c}'")
+        raise ValueError("Invalid character '{c}'")
 
 @attr.s
-class Pattern:
+class Motif:
+    """
+    An array of cells
+    """
     data = attr.ib()
 
     def __eq__(self, other):
@@ -25,7 +28,7 @@ class Pattern:
 
     @classmethod
     def empty(cls, height, width):
-        return Pattern([[0] * width for _ in range(height)])
+        return Motif([[0] * width for _ in range(height)])
 
     @classmethod
     def from_list(cls, data):
@@ -63,15 +66,15 @@ class Pattern:
         if any(s == 1 for s in self.data[-1]):
             self.data.append([0] * self.width)
 
-def successor(patt):
-    h = patt.height
-    l = patt.width
-    new_p = Pattern.empty(h, l)
+def successor(motif):
+    h = motif.height
+    l = motif.width
+    new_p = Motif.empty(h, l)
     for i in range(h):
-        rows = patt.data[max(i - 1, 0):i + 2]
+        rows = motif.data[max(i - 1, 0):i + 2]
         for j in range(l):
             n = sum(sum(l[max(j-1, 0):j + 2]) for l in rows)
-            if patt.data[i][j] == 0:
+            if motif.data[i][j] == 0:
                 new_p.data[i][j] = 1 if n == 3 else 0
             else:
                 new_p.data[i][j] = 1 if n in (3, 4) else 0
