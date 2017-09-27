@@ -54,17 +54,8 @@ class Motif:
     def as_txt(self):
         return '\n'.join(''.join('.O'[s] for s in l) for l in self.data)
 
-    def canonicalize(self):
-        if any(row[0] == 1 for row in self.data):
-            for row in self.data:
-                row.insert(0, 0)
-        if any(row[-1] == 1 for row in self.data):
-            for row in self.data:
-                row.append(0)
-        if any(s == 1 for s in self.data[0]):
-            self.data.insert(0, [0] * self.width)
-        if any(s == 1 for s in self.data[-1]):
-            self.data.append([0] * self.width)
+    def copy(self):
+        return Motif([row[:] for row in self.data])
 
 def successor(motif):
     h = motif.height
@@ -79,3 +70,34 @@ def successor(motif):
             else:
                 new_p.data[i][j] = 1 if n in (3, 4) else 0
     return new_p
+
+@attr.s
+class Pattern:
+    """
+    A finite board configuration
+    """
+    cells = attr.ib()
+    xmin = attr.ib()
+    ymin = attr.ib()
+    time = attr.ib(default=0)
+    def canonicalize(self):
+        if any(row[0] == 1 for row in self.cells.data):
+            for row in self.cells.data:
+                row.insert(0, 0)
+            self.xmin -= 1
+        if any(row[-1] == 1 for row in self.cells.data):
+            for row in self.cells.data:
+                row.append(0)
+        if any(s == 1 for s in self.cells.data[0]):
+            self.cells.data.insert(0, [0] * self.cells.width)
+            self.ymin -= 1
+        if any(s == 1 for s in self.cells.data[-1]):
+            self.cells.data.append([0] * self.cells.width)
+
+    def copy(self):
+        return Pattern(self.cells.copy(), self.xmin, self.ymin, self.time)
+
+    def step(self):
+        self.canonicalize()
+        self.cells = successor(self.cells)
+        self.time += 1
